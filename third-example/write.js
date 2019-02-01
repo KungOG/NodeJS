@@ -1,24 +1,18 @@
-/* This example does not work yet */
-var async = require('async');
-const fs = require('fs');
+var fs = require('fs');
+var Promise = require('bluebird');
+var readFile = Promise.promisify(fs.readFile);
+var writeFile = Promise.promisify(fs.writeFile);
 
-async.each(['Pelle', 'Petsson'], function (file, callback) {
-    
-    fs.writeFile('./' + file + '.txt', JSON.stringify(file, null, 4), function (err){
-        if (err) {
-            console.log(err)
-        } 
-        else {
-            console.log(file + '.txt was updated.');
-        }
-        callback();
-    });
+var promiseArray = 
+    [
+    readFile('firstName.txt'), 
+    readFile('lastName.txt')
+    ];
 
-}, function (err) {
-    if(err) {
-        console.log('A file has failed to process');
+Promise.all(promiseArray).then((dataArray) => {
+    var data = '';
+    for(var i = 0; i < dataArray.length; i++){
+            data += dataArray[i];
     }
-    else {
-        console.log('All files have been processed successfully');
-    }
+    return writeFile('FullName.txt', data)
 });
